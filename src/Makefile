@@ -27,6 +27,7 @@ all: $(TARGET)
 
 $(TARGET): $(OBJ)
 	$(AR) $(ARFLAGS) $@ $^
+	rm -f $(OBJ)
 
 $(OBJ): $(SRC) s21_string.h
 	$(CC) $(CFLAGS) -c $(SRC) -o $(OBJ)
@@ -43,8 +44,19 @@ gcov_report:
 	$(CC) $(TEST_CFLAGS) $(COVERAGE_FLAGS) $(CHECK_INC) \
 		$(TEST_SRC) $(TARGET) $(CHECK_LIB) -o $(TEST_BIN)
 	./$(TEST_BIN)
-	gcovr --root . --filter 's21_string\.c' --html --html-self-contained --output coverage.html
+	gcovr --root . --filter 's21_string\.c' --html \
+		--html-self-contained --output coverage.html
 	gcovr --root . --filter 's21_string\.c' --print-summary
+	rm -f $(TARGET) $(OBJ) $(TEST_BIN)
+	rm -f *.gcda *.gcno *.gcov
+# gcov_report:
+# 	$(CC) $(CFLAGS) $(COVERAGE_FLAGS) -c $(SRC) -o $(OBJ)
+# 	$(AR) $(ARFLAGS) $(TARGET) $(OBJ)
+# 	$(CC) $(TEST_CFLAGS) $(COVERAGE_FLAGS) $(CHECK_INC) \
+# 		$(TEST_SRC) $(TARGET) $(CHECK_LIB) -o $(TEST_BIN)
+# 	./$(TEST_BIN)
+# 	gcovr --root . --filter 's21_string\.c' --html --html-self-contained --output coverage.html
+# 	gcovr --root . --filter 's21_string\.c' --print-summary
 
 clean:
 	rm -f $(TARGET) $(OBJ) $(TEST_BIN)
