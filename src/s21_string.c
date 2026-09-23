@@ -1,4 +1,5 @@
 #include "s21_string.h"
+#include <stdlib.h>
 
 #if defined(__linux__)
 
@@ -522,4 +523,116 @@ char *s21_strerror(int errnum) {
     s21_int_to_string(errnum, buffer + i);
 
     return buffer;
+}
+void *s21_to_upper(const char *str){
+    if (str == S21_NULL) {
+        return S21_NULL;
+    }
+
+    s21_size length = s21_strlen(str);
+    char *result = (char *)malloc(length + 1);
+
+    if (result == S21_NULL) {
+        return S21_NULL;
+    }
+
+    for (s21_size i = 0; i < length; i++) {
+        if (str[i] >= 'a' && str[i] <= 'z') {
+            result[i] = str[i] - ('a' - 'A');
+        } else {
+            result[i] = str[i];
+        }
+    }
+
+    result[length] = '\0';
+
+    return result;
+}
+void *s21_to_lower(const char *str){
+    if (str == S21_NULL) {
+        return S21_NULL;
+    }
+
+    s21_size length = s21_strlen(str);
+    char *result = (char *)malloc(length + 1);
+
+    if (result == S21_NULL) {
+        return S21_NULL;
+    }
+
+    for (s21_size i = 0; i < length; i++) {
+        if (str[i] >= 'A' && str[i] <= 'Z') {
+            result[i] = str[i] + ('a' - 'A');
+        } else {
+            result[i] = str[i];
+        }
+    }
+
+    result[length] = '\0';
+
+    return result;
+}
+void *s21_insert(const char *src, const char *str, s21_size start_index){
+    if (src == S21_NULL || str == S21_NULL) {
+        return S21_NULL;
+    }
+
+    s21_size src_length = s21_strlen(src);
+    s21_size str_length = s21_strlen(str);
+
+    if (start_index > src_length) {
+        return S21_NULL;
+    }
+
+    char *result = (char *)malloc(src_length + str_length + 1);
+    if (result == S21_NULL) {
+        return S21_NULL;
+    }
+
+    for (s21_size i = 0; i < start_index; i++) {
+        result[i] = src[i];
+    }
+
+    for (s21_size i = 0; i < str_length; i++) {
+        result[start_index + i] = str[i];
+    }
+
+    for (s21_size i = start_index; i < src_length; i++) {
+        result[str_length + i] = src[i];
+    }
+
+    result[src_length + str_length] = '\0';
+
+    return result;
+}
+void *s21_trim(const char *src, const char *trim_chars){
+    if (src == S21_NULL || trim_chars == S21_NULL) {
+        return S21_NULL;
+    }
+
+    s21_size src_length = s21_strlen(src);
+    s21_size start_index = 0;
+    s21_size end_index = src_length;
+
+    while (start_index < end_index && s21_strchr(trim_chars, src[start_index]) != S21_NULL) {
+        start_index++;
+    }
+
+    while (end_index > start_index && s21_strchr(trim_chars, src[end_index - 1]) != S21_NULL) {
+        end_index--;
+    }
+
+    s21_size trimmed_length = end_index - start_index;
+    char *result = (char *)malloc(trimmed_length + 1);
+    if (result == S21_NULL) {
+        return S21_NULL;
+    }
+
+    for (s21_size i = 0; i < trimmed_length; i++) {
+        result[i] = src[start_index + i];
+    }
+
+    result[trimmed_length] = '\0';
+
+    return result;
 }

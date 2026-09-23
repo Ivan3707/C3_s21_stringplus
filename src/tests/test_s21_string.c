@@ -705,6 +705,142 @@ START_TEST(test_strerror_negative) {
     );
 }
 END_TEST
+/* ==================== Part 5 ==================== */
+
+START_TEST(test_to_upper) {
+    char *result = (char *)s21_to_upper("Hello World!");
+    ck_assert_str_eq(result, "HELLO WORLD!");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_to_upper_digits) {
+    char *result = (char *)s21_to_upper("123 abc!");
+    ck_assert_str_eq(result, "123 ABC!");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_to_upper_empty) {
+    char *result = (char *)s21_to_upper("");
+    ck_assert_str_eq(result, "");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_to_upper_null) {
+    ck_assert_ptr_eq(s21_to_upper(S21_NULL), S21_NULL);
+}
+END_TEST
+
+
+START_TEST(test_to_lower) {
+    char *result = (char *)s21_to_lower("Hello WORLD!");
+    ck_assert_str_eq(result, "hello world!");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_to_lower_digits) {
+    char *result = (char *)s21_to_lower("123 ABC!");
+    ck_assert_str_eq(result, "123 abc!");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_to_lower_empty) {
+    char *result = (char *)s21_to_lower("");
+    ck_assert_str_eq(result, "");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_to_lower_null) {
+    ck_assert_ptr_eq(s21_to_lower(S21_NULL), S21_NULL);
+}
+END_TEST
+
+
+START_TEST(test_insert_beginning) {
+    char *result = (char *)s21_insert("Hello", "XX", 0);
+    ck_assert_str_eq(result, "XXHello");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_insert_middle) {
+    char *result = (char *)s21_insert("Hello", "XX", 2);
+    ck_assert_str_eq(result, "HeXXllo");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_insert_end) {
+    char *result = (char *)s21_insert("Hello", "XX", 5);
+    ck_assert_str_eq(result, "HelloXX");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_insert_invalid_index) {
+    ck_assert_ptr_eq(s21_insert("Hello", "XX", 6), S21_NULL);
+}
+END_TEST
+
+START_TEST(test_insert_empty_src) {
+    char *result = (char *)s21_insert("", "abc", 0);
+    ck_assert_str_eq(result, "abc");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_insert_null) {
+    ck_assert_ptr_eq(s21_insert(S21_NULL, "abc", 0), S21_NULL);
+    ck_assert_ptr_eq(s21_insert("abc", S21_NULL, 0), S21_NULL);
+}
+END_TEST
+
+
+START_TEST(test_trim_dots) {
+    char *result = (char *)s21_trim("...Hello...", ".");
+    ck_assert_str_eq(result, "Hello");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_trim_spaces) {
+    char *result = (char *)s21_trim("  Hello  ", " ");
+    ck_assert_str_eq(result, "Hello");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_trim_all) {
+    char *result = (char *)s21_trim("....", ".");
+    ck_assert_str_eq(result, "");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_trim_nothing) {
+    char *result = (char *)s21_trim("Hello", ".");
+    ck_assert_str_eq(result, "Hello");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_trim_empty) {
+    char *result = (char *)s21_trim("", ".");
+    ck_assert_str_eq(result, "");
+    free(result);
+}
+END_TEST
+
+START_TEST(test_trim_null) {
+    ck_assert_ptr_eq(s21_trim(S21_NULL, "."), S21_NULL);
+    ck_assert_ptr_eq(s21_trim("Hello", S21_NULL), S21_NULL);
+}
+END_TEST
 
 /* ==================== Suites ==================== */
 
@@ -815,6 +951,38 @@ Suite *s21_string_suite(void) {
     tcase_add_test(tc_strerror, test_strerror_unknown_positive);
     tcase_add_test(tc_strerror, test_strerror_negative);
     suite_add_tcase(suite, tc_strerror);
+
+    TCase *tc_to_upper = tcase_create("to_upper");
+    tcase_add_test(tc_to_upper, test_to_upper);
+    tcase_add_test(tc_to_upper, test_to_upper_digits);
+    tcase_add_test(tc_to_upper, test_to_upper_empty);
+    tcase_add_test(tc_to_upper, test_to_upper_null);
+    suite_add_tcase(suite, tc_to_upper);
+
+    TCase *tc_to_lower = tcase_create("to_lower");
+    tcase_add_test(tc_to_lower, test_to_lower);
+    tcase_add_test(tc_to_lower, test_to_lower_digits);
+    tcase_add_test(tc_to_lower, test_to_lower_empty);
+    tcase_add_test(tc_to_lower, test_to_lower_null);
+    suite_add_tcase(suite, tc_to_lower);
+
+    TCase *tc_insert = tcase_create("insert");
+    tcase_add_test(tc_insert, test_insert_beginning);
+    tcase_add_test(tc_insert, test_insert_middle);
+    tcase_add_test(tc_insert, test_insert_end);
+    tcase_add_test(tc_insert, test_insert_invalid_index);
+    tcase_add_test(tc_insert, test_insert_empty_src);
+    tcase_add_test(tc_insert, test_insert_null);
+    suite_add_tcase(suite, tc_insert);
+
+    TCase *tc_trim = tcase_create("trim");
+    tcase_add_test(tc_trim, test_trim_dots);
+    tcase_add_test(tc_trim, test_trim_spaces);
+    tcase_add_test(tc_trim, test_trim_all);
+    tcase_add_test(tc_trim, test_trim_nothing);
+    tcase_add_test(tc_trim, test_trim_empty);
+    tcase_add_test(tc_trim, test_trim_null);
+    suite_add_tcase(suite, tc_trim);
 
     return suite;
 }
