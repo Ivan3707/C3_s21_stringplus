@@ -641,6 +641,8 @@ void *s21_trim(const char *src, const char *trim_chars){
     return result;
 }
 
+/* ==================== Part 4. s21_sscanf ==================== */
+
 static int s21_ss_is_space(char c) {
     return c == ' ' || c == '\t' || c == '\n' ||
            c == '\r' || c == '\f' || c == '\v';
