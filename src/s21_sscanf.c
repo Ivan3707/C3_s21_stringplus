@@ -14,22 +14,32 @@ typedef struct {
 } s21_sscanf_ctx;
 
 static int s21_ss_is_space(char c) {
-  return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' ||
-         c == '\v';
+  int result = 0;
+  if (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' ||
+      c == '\v') {
+    result = 1;
+  }
+  return result;
 }
 
-static int s21_ss_is_digit(char c) { return c >= '0' && c <= '9'; }
+static int s21_ss_is_digit(char c) {
+  int result = 0;
+  if (c >= '0' && c <= '9') {
+    result = 1;
+  }
+  return result;
+}
 
 static int s21_ss_hex_val(char c) {
-  int v = -1;
+  int result = -1;
   if (c >= '0' && c <= '9') {
-    v = c - '0';
+    result = c - '0';
   } else if (c >= 'a' && c <= 'f') {
-    v = c - 'a' + 10;
+    result = c - 'a' + 10;
   } else if (c >= 'A' && c <= 'F') {
-    v = c - 'A' + 10;
+    result = c - 'A' + 10;
   }
-  return v;
+  return result;
 }
 
 static void s21_ss_skip_spaces(s21_sscanf_ctx* ctx) {
@@ -339,18 +349,22 @@ static int s21_ss_step(s21_sscanf_ctx* ctx) {
 }
 
 int s21_sscanf(const char* str, const char* format, ...) {
-  if (str == S21_NULL || format == S21_NULL) return -1;
+  int result = -1;
 
-  va_list args;
-  va_start(args, format);
+  if (str != S21_NULL && format != S21_NULL) {
+    va_list args;
+    va_start(args, format);
 
-  s21_sscanf_ctx ctx = {str, format, str, &args, 0};
+    s21_sscanf_ctx ctx = {str, format, str, &args, 0};
 
-  int running = 1;
-  while (running && *ctx.f) {
-    if (!s21_ss_step(&ctx)) running = 0;
+    int running = 1;
+    while (running && *ctx.f) {
+      if (!s21_ss_step(&ctx)) running = 0;
+    }
+
+    va_end(args);
+    result = ctx.matched;
   }
 
-  va_end(args);
-  return ctx.matched;
+  return result;
 }
