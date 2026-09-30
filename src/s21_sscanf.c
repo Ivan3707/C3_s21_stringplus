@@ -21,10 +21,15 @@ static int s21_ss_is_space(char c) {
 static int s21_ss_is_digit(char c) { return c >= '0' && c <= '9'; }
 
 static int s21_ss_hex_val(char c) {
-  if (c >= '0' && c <= '9') return c - '0';
-  if (c >= 'a' && c <= 'f') return c - 'a' + 10;
-  if (c >= 'A' && c <= 'F') return c - 'A' + 10;
-  return -1;
+  int v = -1;
+  if (c >= '0' && c <= '9') {
+    v = c - '0';
+  } else if (c >= 'a' && c <= 'f') {
+    v = c - 'a' + 10;
+  } else if (c >= 'A' && c <= 'F') {
+    v = c - 'A' + 10;
+  }
+  return v;
 }
 
 static void s21_ss_skip_spaces(s21_sscanf_ctx* ctx) {
@@ -54,6 +59,7 @@ static void s21_ss_parse_spec(s21_sscanf_ctx* ctx, int* suppress, int* width,
 }
 
 static int s21_ss_handle_char(s21_sscanf_ctx* ctx, int suppress, int width) {
+  int result = 1;
   int n = (width > 0) ? width : 1;
   int k = 0;
   if (!suppress) {
@@ -62,35 +68,42 @@ static int s21_ss_handle_char(s21_sscanf_ctx* ctx, int suppress, int width) {
       dest[k] = ctx->s[k];
       k++;
     }
-    if (k == 0) return 0;
   } else {
     while (k < n && ctx->s[k]) k++;
-    if (k == 0) return 0;
   }
-  ctx->s += k;
-  return 1;
+  if (k == 0) {
+    result = 0;
+  } else {
+    ctx->s += k;
+  }
+  return result;
 }
 
 static int s21_ss_handle_string(s21_sscanf_ctx* ctx, int suppress,
                                 int max_len) {
+  int result = 1;
   char buf[1024];
   int i = 0;
   while (*ctx->s && !s21_ss_is_space(*ctx->s) && i < max_len && i < 1023) {
     buf[i++] = *ctx->s++;
   }
   buf[i] = '\0';
-  if (i == 0) return 0;
-  if (!suppress) {
+  if (i == 0) {
+    result = 0;
+  } else if (!suppress) {
     char* dest = va_arg(*ctx->args, char*);
     for (int k = 0; k <= i; k++) dest[k] = buf[k];
   }
-  return 1;
+  return result;
 }
 
 static int s21_ss_handle_scanset(s21_sscanf_ctx* ctx, int suppress,
                                  int max_len) {
+  int result = 1;
   int negate = 0;
   int charset[256] = {0};
+  char buf[1024];
+  int i = 0;
 
   if (*ctx->f == '^') {
     negate = 1;
@@ -111,8 +124,6 @@ static int s21_ss_handle_scanset(s21_sscanf_ctx* ctx, int suppress,
   }
   if (*ctx->f == ']') ctx->f++;
 
-  char buf[1024];
-  int i = 0;
   while (*ctx->s && i < max_len && i < 1023) {
     int in = charset[(unsigned char)*ctx->s];
     if (negate) in = !in;
@@ -121,12 +132,13 @@ static int s21_ss_handle_scanset(s21_sscanf_ctx* ctx, int suppress,
   }
   buf[i] = '\0';
 
-  if (i == 0) return 0;
-  if (!suppress) {
+  if (i == 0) {
+    result = 0;
+  } else if (!suppress) {
     char* dest = va_arg(*ctx->args, char*);
     for (int k = 0; k <= i; k++) dest[k] = buf[k];
   }
-  return 1;
+  return result;
 }
 
 static int s21_ss_read_digits(s21_sscanf_ctx* ctx, int base, int max_len,
@@ -145,6 +157,7 @@ static int s21_ss_read_digits(s21_sscanf_ctx* ctx, int base, int max_len,
 
 static int s21_ss_handle_int(s21_sscanf_ctx* ctx, int suppress, int max_len,
                              char len_mod, char spec) {
+  int result = 1;
   int is_signed = (spec == 'd' || spec == 'i');
   int base = 10;
   int neg = 0;
@@ -170,37 +183,40 @@ static int s21_ss_handle_int(s21_sscanf_ctx* ctx, int suppress, int max_len,
     }
   }
 
-  if (!s21_ss_read_digits(ctx, base, max_len, buf, &i)) return 0;
+  if (!s21_ss_read_digits(ctx, base, max_len, buf, &i)) {
+    result = 0;
+  } else {
+    unsigned long long val = 0;
+    for (int k = 0; k < i; k++) {
+      int v = (base == 16) ? s21_ss_hex_val(buf[k]) : (buf[k] - '0');
+      val = val * base + v;
+    }
 
-  unsigned long long val = 0;
-  for (int k = 0; k < i; k++) {
-    int v = (base == 16) ? s21_ss_hex_val(buf[k]) : (buf[k] - '0');
-    val = val * base + v;
-  }
-
-  if (!suppress) {
-    if (spec == 'p') {
-      void** pp = va_arg(*ctx->args, void**);
-      *pp = (void*)(uintptr_t)val;
-    } else if (len_mod == 'h') {
-      short* p = va_arg(*ctx->args, short*);
-      *p = (short)(neg ? -(long long)val : (long long)val);
-    } else if (len_mod == 'l') {
-      long* p = va_arg(*ctx->args, long*);
-      *p = neg ? -(long)val : (long)val;
-    } else if (is_signed) {
-      int* p = va_arg(*ctx->args, int*);
-      *p = neg ? -(int)val : (int)val;
-    } else {
-      unsigned int* p = va_arg(*ctx->args, unsigned int*);
-      *p = (unsigned int)val;
+    if (!suppress) {
+      if (spec == 'p') {
+        void** pp = va_arg(*ctx->args, void**);
+        *pp = (void*)(uintptr_t)val;
+      } else if (len_mod == 'h') {
+        short* p = va_arg(*ctx->args, short*);
+        *p = (short)(neg ? -(long long)val : (long long)val);
+      } else if (len_mod == 'l') {
+        long* p = va_arg(*ctx->args, long*);
+        *p = neg ? -(long)val : (long)val;
+      } else if (is_signed) {
+        int* p = va_arg(*ctx->args, int*);
+        *p = neg ? -(int)val : (int)val;
+      } else {
+        unsigned int* p = va_arg(*ctx->args, unsigned int*);
+        *p = (unsigned int)val;
+      }
     }
   }
-  return 1;
+  return result;
 }
 
 static int s21_ss_handle_float(s21_sscanf_ctx* ctx, int suppress, int max_len,
                                char len_mod) {
+  int result = 1;
   char buf[128];
   int i = 0;
   int has_digit = 0;
@@ -233,9 +249,9 @@ static int s21_ss_handle_float(s21_sscanf_ctx* ctx, int suppress, int max_len,
   }
   buf[i] = '\0';
 
-  if (!has_digit) return 0;
-
-  if (!suppress) {
+  if (!has_digit) {
+    result = 0;
+  } else if (!suppress) {
     long double val = strtold(buf, S21_NULL);
     if (len_mod == 'L') {
       long double* p = va_arg(*ctx->args, long double*);
@@ -248,7 +264,7 @@ static int s21_ss_handle_float(s21_sscanf_ctx* ctx, int suppress, int max_len,
       *p = (float)val;
     }
   }
-  return 1;
+  return result;
 }
 
 static int s21_ss_step(s21_sscanf_ctx* ctx) {
