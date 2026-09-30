@@ -251,6 +251,69 @@ static int s21_ss_handle_float(s21_sscanf_ctx* ctx, int suppress, int max_len,
   return 1;
 }
 
+static int s21_ss_step(s21_sscanf_ctx* ctx) {
+  if (s21_ss_is_space(*ctx->f)) {
+    s21_ss_skip_spaces(ctx);
+    ctx->f++;
+    return 1;
+  }
+
+  if (*ctx->f != '%') {
+    if (*ctx->s != *ctx->f) return 0;
+    ctx->s++;
+    ctx->f++;
+    return 1;
+  }
+
+  ctx->f++;
+
+  if (*ctx->f == '%') {
+    if (*ctx->s != '%') return 0;
+    ctx->s++;
+    ctx->f++;
+    return 1;
+  }
+
+  int suppress, width;
+  char len_mod, spec;
+  s21_ss_parse_spec(ctx, &suppress, &width, &len_mod, &spec);
+  if (spec == '\0') return 0;
+
+  if (spec != 'c' && spec != 'n') s21_ss_skip_spaces(ctx);
+
+  if (spec == 'n') {
+    if (!suppress) {
+      int* p = va_arg(*ctx->args, int*);
+      *p = (int)(ctx->s - ctx->str_start);
+    }
+    return 1;
+  }
+
+  if (*ctx->s == '\0') return 0;
+
+  int max_len = (width > 0) ? width : INT_MAX;
+  int ok = 0;
+
+  if (spec == 'c')
+    ok = s21_ss_handle_char(ctx, suppress, width);
+  else if (spec == 's')
+    ok = s21_ss_handle_string(ctx, suppress, max_len);
+  else if (spec == '[')
+    ok = s21_ss_handle_scanset(ctx, suppress, max_len);
+  else if (spec == 'd' || spec == 'i' || spec == 'u' || spec == 'o' ||
+           spec == 'x' || spec == 'X' || spec == 'p')
+    ok = s21_ss_handle_int(ctx, suppress, max_len, len_mod, spec);
+  else if (spec == 'e' || spec == 'E' || spec == 'f' || spec == 'g' ||
+           spec == 'G')
+    ok = s21_ss_handle_float(ctx, suppress, max_len, len_mod);
+  else
+    return 0;
+
+  if (!ok) return 0;
+  if (!suppress) ctx->matched++;
+  return 1;
+}
+
 int s21_sscanf(const char* str, const char* format, ...) {
   if (str == S21_NULL || format == S21_NULL) return -1;
 
@@ -259,65 +322,9 @@ int s21_sscanf(const char* str, const char* format, ...) {
 
   s21_sscanf_ctx ctx = {str, format, str, &args, 0};
 
-  while (*ctx.f) {
-    if (s21_ss_is_space(*ctx.f)) {
-      s21_ss_skip_spaces(&ctx);
-      ctx.f++;
-      continue;
-    }
-
-    if (*ctx.f != '%') {
-      if (*ctx.s != *ctx.f) break;
-      ctx.s++;
-      ctx.f++;
-      continue;
-    }
-    ctx.f++;
-
-    if (*ctx.f == '%') {
-      if (*ctx.s != '%') break;
-      ctx.s++;
-      ctx.f++;
-      continue;
-    }
-
-    int suppress, width;
-    char len_mod, spec;
-    s21_ss_parse_spec(&ctx, &suppress, &width, &len_mod, &spec);
-    if (spec == '\0') break;
-
-    if (spec != 'c' && spec != 'n') s21_ss_skip_spaces(&ctx);
-
-    if (spec == 'n') {
-      if (!suppress) {
-        int* p = va_arg(args, int*);
-        *p = (int)(ctx.s - ctx.str_start);
-      }
-      continue;
-    }
-
-    if (*ctx.s == '\0') break;
-
-    int max_len = (width > 0) ? width : INT_MAX;
-    int ok = 0;
-
-    if (spec == 'c')
-      ok = s21_ss_handle_char(&ctx, suppress, width);
-    else if (spec == 's')
-      ok = s21_ss_handle_string(&ctx, suppress, max_len);
-    else if (spec == '[')
-      ok = s21_ss_handle_scanset(&ctx, suppress, max_len);
-    else if (spec == 'd' || spec == 'i' || spec == 'u' || spec == 'o' ||
-             spec == 'x' || spec == 'X' || spec == 'p')
-      ok = s21_ss_handle_int(&ctx, suppress, max_len, len_mod, spec);
-    else if (spec == 'e' || spec == 'E' || spec == 'f' || spec == 'g' ||
-             spec == 'G')
-      ok = s21_ss_handle_float(&ctx, suppress, max_len, len_mod);
-    else
-      break;
-
-    if (!ok) break;
-    if (!suppress) ctx.matched++;
+  int running = 1;
+  while (running && *ctx.f) {
+    if (!s21_ss_step(&ctx)) running = 0;
   }
 
   va_end(args);
