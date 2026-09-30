@@ -481,6 +481,55 @@ START_TEST(test_sprintf_float_plus) {
 }
 END_TEST
 
+/* ==================== Дополнительные для покрытия ==================== */
+
+START_TEST(test_sprintf_e_default_prec) {
+  char s21_buf[128], std_buf[128];
+  s21_sprintf(s21_buf, "%e", 1.5);
+  sprintf(std_buf, "%e", 1.5);
+  ck_assert_str_eq(s21_buf, std_buf);
+}
+END_TEST
+
+START_TEST(test_sprintf_n) {
+  char s21_buf[128];
+  int s21_pos = -1;
+  s21_sprintf(s21_buf, "hello%n world", &s21_pos);
+  ck_assert_int_eq(s21_pos, 5);
+}
+END_TEST
+
+START_TEST(test_sprintf_round_carry) {
+  char s21_buf[128], std_buf[128];
+  s21_sprintf(s21_buf, "%.2f", 9.999);
+  sprintf(std_buf, "%.2f", 9.999);
+  ck_assert_str_eq(s21_buf, std_buf);
+}
+END_TEST
+
+START_TEST(test_sprintf_unknown_conv) {
+  char s21_buf[128];
+  s21_sprintf(s21_buf, "%z", 42);
+  ck_assert_str_eq(s21_buf, "%z");
+}
+END_TEST
+
+START_TEST(test_sprintf_hash_float) {
+  char s21_buf[128], std_buf[128];
+  s21_sprintf(s21_buf, "%#.0f", 3.0);
+  sprintf(std_buf, "%#.0f", 3.0);
+  ck_assert_str_eq(s21_buf, std_buf);
+}
+END_TEST
+
+START_TEST(test_sprintf_zero_pad_float) {
+  char s21_buf[128], std_buf[128];
+  s21_sprintf(s21_buf, "%010.2f", 3.14);
+  sprintf(std_buf, "%010.2f", 3.14);
+  ck_assert_str_eq(s21_buf, std_buf);
+}
+END_TEST
+
 /* ==================== Suite ==================== */
 
 Suite *s21_sprintf_suite(void) {
@@ -563,6 +612,15 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_float, test_sprintf_float_left);
   tcase_add_test(tc_float, test_sprintf_float_plus);
   suite_add_tcase(suite, tc_float);
+
+  TCase *tc_extra = tcase_create("extra");
+  tcase_add_test(tc_extra, test_sprintf_e_default_prec);
+  tcase_add_test(tc_extra, test_sprintf_n);
+  tcase_add_test(tc_extra, test_sprintf_round_carry);
+  tcase_add_test(tc_extra, test_sprintf_unknown_conv);
+  tcase_add_test(tc_extra, test_sprintf_hash_float);
+  tcase_add_test(tc_extra, test_sprintf_zero_pad_float);
+  suite_add_tcase(suite, tc_extra);
 
   return suite;
 }
