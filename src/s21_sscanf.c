@@ -252,66 +252,74 @@ static int s21_ss_handle_float(s21_sscanf_ctx* ctx, int suppress, int max_len,
 }
 
 static int s21_ss_step(s21_sscanf_ctx* ctx) {
+  int result = 1;
+
   if (s21_ss_is_space(*ctx->f)) {
     s21_ss_skip_spaces(ctx);
     ctx->f++;
-    return 1;
-  }
-
-  if (*ctx->f != '%') {
-    if (*ctx->s != *ctx->f) return 0;
-    ctx->s++;
-    ctx->f++;
-    return 1;
-  }
-
-  ctx->f++;
-
-  if (*ctx->f == '%') {
-    if (*ctx->s != '%') return 0;
-    ctx->s++;
-    ctx->f++;
-    return 1;
-  }
-
-  int suppress, width;
-  char len_mod, spec;
-  s21_ss_parse_spec(ctx, &suppress, &width, &len_mod, &spec);
-  if (spec == '\0') return 0;
-
-  if (spec != 'c' && spec != 'n') s21_ss_skip_spaces(ctx);
-
-  if (spec == 'n') {
-    if (!suppress) {
-      int* p = va_arg(*ctx->args, int*);
-      *p = (int)(ctx->s - ctx->str_start);
+  } else if (*ctx->f != '%') {
+    if (*ctx->s == *ctx->f) {
+      ctx->s++;
+      ctx->f++;
+    } else {
+      result = 0;
     }
-    return 1;
+  } else {
+    ctx->f++;
+    if (*ctx->f == '%') {
+      if (*ctx->s == '%') {
+        ctx->s++;
+        ctx->f++;
+      } else {
+        result = 0;
+      }
+    } else {
+      int suppress, width;
+      char len_mod, spec;
+      s21_ss_parse_spec(ctx, &suppress, &width, &len_mod, &spec);
+
+      if (spec == '\0') {
+        result = 0;
+      } else {
+        if (spec != 'c' && spec != 'n') s21_ss_skip_spaces(ctx);
+
+        if (spec == 'n') {
+          if (!suppress) {
+            int* p = va_arg(*ctx->args, int*);
+            *p = (int)(ctx->s - ctx->str_start);
+          }
+        } else if (*ctx->s == '\0') {
+          result = 0;
+        } else {
+          int max_len = (width > 0) ? width : INT_MAX;
+          int ok = 0;
+
+          if (spec == 'c')
+            ok = s21_ss_handle_char(ctx, suppress, width);
+          else if (spec == 's')
+            ok = s21_ss_handle_string(ctx, suppress, max_len);
+          else if (spec == '[')
+            ok = s21_ss_handle_scanset(ctx, suppress, max_len);
+          else if (spec == 'd' || spec == 'i' || spec == 'u' || spec == 'o' ||
+                   spec == 'x' || spec == 'X' || spec == 'p')
+            ok = s21_ss_handle_int(ctx, suppress, max_len, len_mod, spec);
+          else if (spec == 'e' || spec == 'E' || spec == 'f' || spec == 'g' ||
+                   spec == 'G')
+            ok = s21_ss_handle_float(ctx, suppress, max_len, len_mod);
+          else
+            ok = -1;
+
+          if (ok == 0 || ok == -1) {
+            result = 0;
+          } else if (!suppress) {
+            ctx->matched++;
+          }
+        }
+      }
+    }
   }
 
-  if (*ctx->s == '\0') return 0;
-
-  int max_len = (width > 0) ? width : INT_MAX;
-  int ok = 0;
-
-  if (spec == 'c')
-    ok = s21_ss_handle_char(ctx, suppress, width);
-  else if (spec == 's')
-    ok = s21_ss_handle_string(ctx, suppress, max_len);
-  else if (spec == '[')
-    ok = s21_ss_handle_scanset(ctx, suppress, max_len);
-  else if (spec == 'd' || spec == 'i' || spec == 'u' || spec == 'o' ||
-           spec == 'x' || spec == 'X' || spec == 'p')
-    ok = s21_ss_handle_int(ctx, suppress, max_len, len_mod, spec);
-  else if (spec == 'e' || spec == 'E' || spec == 'f' || spec == 'g' ||
-           spec == 'G')
-    ok = s21_ss_handle_float(ctx, suppress, max_len, len_mod);
-  else
-    return 0;
-
-  if (!ok) return 0;
-  if (!suppress) ctx->matched++;
-  return 1;
+  return result;
 }
 
 int s21_sscanf(const char* str, const char* format, ...) {
