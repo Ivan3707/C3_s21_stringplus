@@ -1,26 +1,27 @@
-#include "s21_string.h"
 #include <check.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "s21_string.h"
+
 /* ==================== strlen ==================== */
 
 START_TEST(test_strlen_normal) {
-  const char *str = "Hello, world!";
+  const char* str = "Hello, world!";
   ck_assert_uint_eq(s21_strlen(str), strlen(str));
 }
 END_TEST
 
 START_TEST(test_strlen_empty) {
-  const char *str = "";
+  const char* str = "";
   ck_assert_uint_eq(s21_strlen(str), strlen(str));
 }
 END_TEST
 
 START_TEST(test_strlen_spaces) {
-  const char *str = "   hello   world   ";
+  const char* str = "   hello   world   ";
   ck_assert_uint_eq(s21_strlen(str), strlen(str));
 }
 END_TEST
@@ -63,16 +64,16 @@ END_TEST
 /* ==================== memcmp ==================== */
 
 START_TEST(test_memcmp_equal) {
-  const char *a = "hello";
-  const char *b = "hello";
+  const char* a = "hello";
+  const char* b = "hello";
 
   ck_assert_int_eq(s21_memcmp(a, b, 5), 0);
 }
 END_TEST
 
 START_TEST(test_memcmp_less) {
-  const char *a = "abc";
-  const char *b = "abd";
+  const char* a = "abc";
+  const char* b = "abd";
 
   int s21_result = s21_memcmp(a, b, 3);
   int std_result = memcmp(a, b, 3);
@@ -83,8 +84,8 @@ START_TEST(test_memcmp_less) {
 END_TEST
 
 START_TEST(test_memcmp_greater) {
-  const char *a = "abd";
-  const char *b = "abc";
+  const char* a = "abd";
+  const char* b = "abc";
 
   int s21_result = s21_memcmp(a, b, 3);
   int std_result = memcmp(a, b, 3);
@@ -95,8 +96,8 @@ START_TEST(test_memcmp_greater) {
 END_TEST
 
 START_TEST(test_memcmp_zero_length) {
-  const char *a = "abc";
-  const char *b = "xyz";
+  const char* a = "abc";
+  const char* b = "xyz";
 
   ck_assert_int_eq(s21_memcmp(a, b, 0), memcmp(a, b, 0));
 }
@@ -119,8 +120,8 @@ END_TEST
 START_TEST(test_memchr_found) {
   char str[] = "hello";
 
-  void *s21_result = s21_memchr(str, 'l', 5);
-  void *std_result = memchr(str, 'l', 5);
+  void* s21_result = s21_memchr(str, 'l', 5);
+  void* std_result = memchr(str, 'l', 5);
 
   ck_assert_ptr_eq(s21_result, std_result);
 }
@@ -136,8 +137,8 @@ END_TEST
 START_TEST(test_memchr_null_character) {
   char str[] = "hello";
 
-  void *s21_result = s21_memchr(str, '\0', 6);
-  void *std_result = memchr(str, '\0', 6);
+  void* s21_result = s21_memchr(str, '\0', 6);
+  void* std_result = memchr(str, '\0', 6);
 
   ck_assert_ptr_eq(s21_result, std_result);
 }
@@ -155,7 +156,7 @@ END_TEST
 START_TEST(test_memcpy_normal) {
   char s21_buf[20] = {0};
   char std_buf[20] = {0};
-  const char *source = "hello";
+  const char* source = "hello";
 
   ck_assert_ptr_eq(s21_memcpy(s21_buf, source, 6), s21_buf);
   ck_assert_ptr_eq(memcpy(std_buf, source, 6), std_buf);
@@ -167,7 +168,7 @@ END_TEST
 START_TEST(test_memcpy_partial) {
   char s21_buf[20] = "abcdefgh";
   char std_buf[20] = "abcdefgh";
-  const char *source = "XYZ";
+  const char* source = "XYZ";
 
   s21_memcpy(s21_buf + 2, source, 3);
   memcpy(std_buf + 2, source, 3);
@@ -190,32 +191,32 @@ END_TEST
 /* ==================== strcspn ==================== */
 
 START_TEST(test_strcspn_normal) {
-  const char *a = "abc123";
-  const char *b = "0123456789";
+  const char* a = "abc123";
+  const char* b = "0123456789";
 
   ck_assert_uint_eq(s21_strcspn(a, b), strcspn(a, b));
 }
 END_TEST
 
 START_TEST(test_strcspn_no_match) {
-  const char *a = "abcdef";
-  const char *b = "123";
+  const char* a = "abcdef";
+  const char* b = "123";
 
   ck_assert_uint_eq(s21_strcspn(a, b), strcspn(a, b));
 }
 END_TEST
 
 START_TEST(test_strcspn_first_character) {
-  const char *a = "hello";
-  const char *b = "h";
+  const char* a = "hello";
+  const char* b = "h";
 
   ck_assert_uint_eq(s21_strcspn(a, b), strcspn(a, b));
 }
 END_TEST
 
 START_TEST(test_strcspn_empty_reject) {
-  const char *a = "hello";
-  const char *b = "";
+  const char* a = "hello";
+  const char* b = "";
 
   ck_assert_uint_eq(s21_strcspn(a, b), strcspn(a, b));
 }
@@ -226,8 +227,8 @@ END_TEST
 START_TEST(test_strchr_found) {
   char str[] = "hello";
 
-  char *s21_result = s21_strchr(str, 'l');
-  char *std_result = strchr(str, 'l');
+  char* s21_result = s21_strchr(str, 'l');
+  char* std_result = strchr(str, 'l');
 
   ck_assert_int_eq(s21_result - str, std_result - str);
 }
@@ -259,8 +260,8 @@ END_TEST
 START_TEST(test_strrchr_found) {
   char str[] = "hello";
 
-  char *s21_result = s21_strrchr(str, 'l');
-  char *std_result = strrchr(str, 'l');
+  char* s21_result = s21_strrchr(str, 'l');
+  char* std_result = strrchr(str, 'l');
 
   ck_assert_int_eq(s21_result - str, std_result - str);
 }
@@ -424,8 +425,8 @@ END_TEST
 START_TEST(test_strpbrk_found) {
   char str[] = "hello";
 
-  char *s21_result = s21_strpbrk(str, "xyzl");
-  char *std_result = strpbrk(str, "xyzl");
+  char* s21_result = s21_strpbrk(str, "xyzl");
+  char* std_result = strpbrk(str, "xyzl");
 
   ck_assert_int_eq(s21_result - str, std_result - str);
 }
@@ -458,8 +459,8 @@ START_TEST(test_strstr_found) {
   char s21_buf[] = "hello world";
   char std_buf[] = "hello world";
 
-  char *s21_result = s21_strstr(s21_buf, "world");
-  char *std_result = strstr(std_buf, "world");
+  char* s21_result = s21_strstr(s21_buf, "world");
+  char* std_result = strstr(std_buf, "world");
 
   ck_assert_int_eq(s21_result - s21_buf, std_result - std_buf);
 }
@@ -497,8 +498,8 @@ START_TEST(test_strtok_normal) {
   char s21_buf[] = "one,two,three";
   char std_buf[] = "one,two,three";
 
-  char *s21_token = s21_strtok(s21_buf, ",");
-  char *std_token = strtok(std_buf, ",");
+  char* s21_token = s21_strtok(s21_buf, ",");
+  char* std_token = strtok(std_buf, ",");
 
   while (s21_token != NULL || std_token != NULL) {
     ck_assert_ptr_ne(s21_token, NULL);
@@ -515,8 +516,8 @@ START_TEST(test_strtok_repeated_delimiters) {
   char s21_buf[] = ",,one,,,two,,";
   char std_buf[] = ",,one,,,two,,";
 
-  char *s21_token = s21_strtok(s21_buf, ",");
-  char *std_token = strtok(std_buf, ",");
+  char* s21_token = s21_strtok(s21_buf, ",");
+  char* std_token = strtok(std_buf, ",");
 
   while (s21_token != NULL || std_token != NULL) {
     ck_assert_ptr_ne(s21_token, NULL);
@@ -541,10 +542,10 @@ START_TEST(test_strtok_multiple_delimiters) {
   char s21_buf[] = "one:two;three,four";
   char std_buf[] = "one:two;three,four";
 
-  const char *delim = ":;,";
+  const char* delim = ":;,";
 
-  char *s21_token = s21_strtok(s21_buf, delim);
-  char *std_token = strtok(std_buf, delim);
+  char* s21_token = s21_strtok(s21_buf, delim);
+  char* std_token = strtok(std_buf, delim);
 
   while (s21_token != NULL || std_token != NULL) {
     ck_assert_ptr_ne(s21_token, NULL);
@@ -624,21 +625,21 @@ END_TEST
 /* ==================== Part 5 ==================== */
 
 START_TEST(test_to_upper) {
-  char *result = (char *)s21_to_upper("Hello World!");
+  char* result = (char*)s21_to_upper("Hello World!");
   ck_assert_str_eq(result, "HELLO WORLD!");
   free(result);
 }
 END_TEST
 
 START_TEST(test_to_upper_digits) {
-  char *result = (char *)s21_to_upper("123 abc!");
+  char* result = (char*)s21_to_upper("123 abc!");
   ck_assert_str_eq(result, "123 ABC!");
   free(result);
 }
 END_TEST
 
 START_TEST(test_to_upper_empty) {
-  char *result = (char *)s21_to_upper("");
+  char* result = (char*)s21_to_upper("");
   ck_assert_str_eq(result, "");
   free(result);
 }
@@ -650,21 +651,21 @@ START_TEST(test_to_upper_null) {
 END_TEST
 
 START_TEST(test_to_lower) {
-  char *result = (char *)s21_to_lower("Hello WORLD!");
+  char* result = (char*)s21_to_lower("Hello WORLD!");
   ck_assert_str_eq(result, "hello world!");
   free(result);
 }
 END_TEST
 
 START_TEST(test_to_lower_digits) {
-  char *result = (char *)s21_to_lower("123 ABC!");
+  char* result = (char*)s21_to_lower("123 ABC!");
   ck_assert_str_eq(result, "123 abc!");
   free(result);
 }
 END_TEST
 
 START_TEST(test_to_lower_empty) {
-  char *result = (char *)s21_to_lower("");
+  char* result = (char*)s21_to_lower("");
   ck_assert_str_eq(result, "");
   free(result);
 }
@@ -676,21 +677,21 @@ START_TEST(test_to_lower_null) {
 END_TEST
 
 START_TEST(test_insert_beginning) {
-  char *result = (char *)s21_insert("Hello", "XX", 0);
+  char* result = (char*)s21_insert("Hello", "XX", 0);
   ck_assert_str_eq(result, "XXHello");
   free(result);
 }
 END_TEST
 
 START_TEST(test_insert_middle) {
-  char *result = (char *)s21_insert("Hello", "XX", 2);
+  char* result = (char*)s21_insert("Hello", "XX", 2);
   ck_assert_str_eq(result, "HeXXllo");
   free(result);
 }
 END_TEST
 
 START_TEST(test_insert_end) {
-  char *result = (char *)s21_insert("Hello", "XX", 5);
+  char* result = (char*)s21_insert("Hello", "XX", 5);
   ck_assert_str_eq(result, "HelloXX");
   free(result);
 }
@@ -702,7 +703,7 @@ START_TEST(test_insert_invalid_index) {
 END_TEST
 
 START_TEST(test_insert_empty_src) {
-  char *result = (char *)s21_insert("", "abc", 0);
+  char* result = (char*)s21_insert("", "abc", 0);
   ck_assert_str_eq(result, "abc");
   free(result);
 }
@@ -715,35 +716,35 @@ START_TEST(test_insert_null) {
 END_TEST
 
 START_TEST(test_trim_dots) {
-  char *result = (char *)s21_trim("...Hello...", ".");
+  char* result = (char*)s21_trim("...Hello...", ".");
   ck_assert_str_eq(result, "Hello");
   free(result);
 }
 END_TEST
 
 START_TEST(test_trim_spaces) {
-  char *result = (char *)s21_trim("  Hello  ", " ");
+  char* result = (char*)s21_trim("  Hello  ", " ");
   ck_assert_str_eq(result, "Hello");
   free(result);
 }
 END_TEST
 
 START_TEST(test_trim_all) {
-  char *result = (char *)s21_trim("....", ".");
+  char* result = (char*)s21_trim("....", ".");
   ck_assert_str_eq(result, "");
   free(result);
 }
 END_TEST
 
 START_TEST(test_trim_nothing) {
-  char *result = (char *)s21_trim("Hello", ".");
+  char* result = (char*)s21_trim("Hello", ".");
   ck_assert_str_eq(result, "Hello");
   free(result);
 }
 END_TEST
 
 START_TEST(test_trim_empty) {
-  char *result = (char *)s21_trim("", ".");
+  char* result = (char*)s21_trim("", ".");
   ck_assert_str_eq(result, "");
   free(result);
 }
@@ -757,22 +758,22 @@ END_TEST
 
 /* ==================== Suites ==================== */
 
-Suite *s21_string_suite(void) {
-  Suite *suite = suite_create("s21_string");
+Suite* s21_string_suite(void) {
+  Suite* suite = suite_create("s21_string");
 
-  TCase *tc_strlen = tcase_create("strlen");
+  TCase* tc_strlen = tcase_create("strlen");
   tcase_add_test(tc_strlen, test_strlen_normal);
   tcase_add_test(tc_strlen, test_strlen_empty);
   tcase_add_test(tc_strlen, test_strlen_spaces);
   suite_add_tcase(suite, tc_strlen);
 
-  TCase *tc_memset = tcase_create("memset");
+  TCase* tc_memset = tcase_create("memset");
   tcase_add_test(tc_memset, test_memset_normal);
   tcase_add_test(tc_memset, test_memset_zero_length);
   tcase_add_test(tc_memset, test_memset_large_value);
   suite_add_tcase(suite, tc_memset);
 
-  TCase *tc_memcmp = tcase_create("memcmp");
+  TCase* tc_memcmp = tcase_create("memcmp");
   tcase_add_test(tc_memcmp, test_memcmp_equal);
   tcase_add_test(tc_memcmp, test_memcmp_less);
   tcase_add_test(tc_memcmp, test_memcmp_greater);
@@ -780,41 +781,41 @@ Suite *s21_string_suite(void) {
   tcase_add_test(tc_memcmp, test_memcmp_unsigned_char);
   suite_add_tcase(suite, tc_memcmp);
 
-  TCase *tc_memchr = tcase_create("memchr");
+  TCase* tc_memchr = tcase_create("memchr");
   tcase_add_test(tc_memchr, test_memchr_found);
   tcase_add_test(tc_memchr, test_memchr_not_found);
   tcase_add_test(tc_memchr, test_memchr_null_character);
   tcase_add_test(tc_memchr, test_memchr_zero_length);
   suite_add_tcase(suite, tc_memchr);
 
-  TCase *tc_memcpy = tcase_create("memcpy");
+  TCase* tc_memcpy = tcase_create("memcpy");
   tcase_add_test(tc_memcpy, test_memcpy_normal);
   tcase_add_test(tc_memcpy, test_memcpy_partial);
   tcase_add_test(tc_memcpy, test_memcpy_zero_length);
   suite_add_tcase(suite, tc_memcpy);
 
-  TCase *tc_strcspn = tcase_create("strcspn");
+  TCase* tc_strcspn = tcase_create("strcspn");
   tcase_add_test(tc_strcspn, test_strcspn_normal);
   tcase_add_test(tc_strcspn, test_strcspn_no_match);
   tcase_add_test(tc_strcspn, test_strcspn_first_character);
   tcase_add_test(tc_strcspn, test_strcspn_empty_reject);
   suite_add_tcase(suite, tc_strcspn);
 
-  TCase *tc_strchr = tcase_create("strchr");
+  TCase* tc_strchr = tcase_create("strchr");
   tcase_add_test(tc_strchr, test_strchr_found);
   tcase_add_test(tc_strchr, test_strchr_not_found);
   tcase_add_test(tc_strchr, test_strchr_null_character);
   tcase_add_test(tc_strchr, test_strchr_first_character);
   suite_add_tcase(suite, tc_strchr);
 
-  TCase *tc_strrchr = tcase_create("strrchr");
+  TCase* tc_strrchr = tcase_create("strrchr");
   tcase_add_test(tc_strrchr, test_strrchr_found);
   tcase_add_test(tc_strrchr, test_strrchr_not_found);
   tcase_add_test(tc_strrchr, test_strrchr_null_character);
   tcase_add_test(tc_strrchr, test_strrchr_first_character);
   suite_add_tcase(suite, tc_strrchr);
 
-  TCase *tc_strncmp = tcase_create("strncmp");
+  TCase* tc_strncmp = tcase_create("strncmp");
   tcase_add_test(tc_strncmp, test_strncmp_equal);
   tcase_add_test(tc_strncmp, test_strncmp_less);
   tcase_add_test(tc_strncmp, test_strncmp_greater);
@@ -822,42 +823,42 @@ Suite *s21_string_suite(void) {
   tcase_add_test(tc_strncmp, test_strncmp_shorter_string);
   suite_add_tcase(suite, tc_strncmp);
 
-  TCase *tc_strncpy = tcase_create("strncpy");
+  TCase* tc_strncpy = tcase_create("strncpy");
   tcase_add_test(tc_strncpy, test_strncpy_source_shorter);
   tcase_add_test(tc_strncpy, test_strncpy_exact_length);
   tcase_add_test(tc_strncpy, test_strncpy_source_longer);
   tcase_add_test(tc_strncpy, test_strncpy_zero_length);
   suite_add_tcase(suite, tc_strncpy);
 
-  TCase *tc_strncat = tcase_create("strncat");
+  TCase* tc_strncat = tcase_create("strncat");
   tcase_add_test(tc_strncat, test_strncat_normal);
   tcase_add_test(tc_strncat, test_strncat_partial);
   tcase_add_test(tc_strncat, test_strncat_zero_length);
   tcase_add_test(tc_strncat, test_strncat_empty_source);
   suite_add_tcase(suite, tc_strncat);
 
-  TCase *tc_strpbrk = tcase_create("strpbrk");
+  TCase* tc_strpbrk = tcase_create("strpbrk");
   tcase_add_test(tc_strpbrk, test_strpbrk_found);
   tcase_add_test(tc_strpbrk, test_strpbrk_not_found);
   tcase_add_test(tc_strpbrk, test_strpbrk_first_character);
   tcase_add_test(tc_strpbrk, test_strpbrk_empty_set);
   suite_add_tcase(suite, tc_strpbrk);
 
-  TCase *tc_strstr = tcase_create("strstr");
+  TCase* tc_strstr = tcase_create("strstr");
   tcase_add_test(tc_strstr, test_strstr_found);
   tcase_add_test(tc_strstr, test_strstr_not_found);
   tcase_add_test(tc_strstr, test_strstr_beginning);
   tcase_add_test(tc_strstr, test_strstr_empty_needle);
   suite_add_tcase(suite, tc_strstr);
 
-  TCase *tc_strtok = tcase_create("strtok");
+  TCase* tc_strtok = tcase_create("strtok");
   tcase_add_test(tc_strtok, test_strtok_normal);
   tcase_add_test(tc_strtok, test_strtok_repeated_delimiters);
   tcase_add_test(tc_strtok, test_strtok_empty_string);
   tcase_add_test(tc_strtok, test_strtok_multiple_delimiters);
   suite_add_tcase(suite, tc_strtok);
 
-  TCase *tc_strerror = tcase_create("strerror");
+  TCase* tc_strerror = tcase_create("strerror");
   tcase_add_test(tc_strerror, test_strerror_zero);
   tcase_add_test(tc_strerror, test_strerror_known_error);
   tcase_add_test(tc_strerror, test_strerror_additional_errors);
@@ -865,21 +866,21 @@ Suite *s21_string_suite(void) {
   tcase_add_test(tc_strerror, test_strerror_negative);
   suite_add_tcase(suite, tc_strerror);
 
-  TCase *tc_to_upper = tcase_create("to_upper");
+  TCase* tc_to_upper = tcase_create("to_upper");
   tcase_add_test(tc_to_upper, test_to_upper);
   tcase_add_test(tc_to_upper, test_to_upper_digits);
   tcase_add_test(tc_to_upper, test_to_upper_empty);
   tcase_add_test(tc_to_upper, test_to_upper_null);
   suite_add_tcase(suite, tc_to_upper);
 
-  TCase *tc_to_lower = tcase_create("to_lower");
+  TCase* tc_to_lower = tcase_create("to_lower");
   tcase_add_test(tc_to_lower, test_to_lower);
   tcase_add_test(tc_to_lower, test_to_lower_digits);
   tcase_add_test(tc_to_lower, test_to_lower_empty);
   tcase_add_test(tc_to_lower, test_to_lower_null);
   suite_add_tcase(suite, tc_to_lower);
 
-  TCase *tc_insert = tcase_create("insert");
+  TCase* tc_insert = tcase_create("insert");
   tcase_add_test(tc_insert, test_insert_beginning);
   tcase_add_test(tc_insert, test_insert_middle);
   tcase_add_test(tc_insert, test_insert_end);
@@ -888,7 +889,7 @@ Suite *s21_string_suite(void) {
   tcase_add_test(tc_insert, test_insert_null);
   suite_add_tcase(suite, tc_insert);
 
-  TCase *tc_trim = tcase_create("trim");
+  TCase* tc_trim = tcase_create("trim");
   tcase_add_test(tc_trim, test_trim_dots);
   tcase_add_test(tc_trim, test_trim_spaces);
   tcase_add_test(tc_trim, test_trim_all);

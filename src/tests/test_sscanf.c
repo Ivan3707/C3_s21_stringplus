@@ -1,7 +1,7 @@
-#include "s21_string.h"
-
 #include <check.h>
 #include <stdlib.h>
+
+#include "s21_string.h"
 
 /* ==================== sscanf ==================== */
 
@@ -110,9 +110,9 @@ START_TEST(test_sscanf_short) {
 }
 END_TEST
 
-Suite *s21_sscanf_suite(void) {
-  Suite *suite = suite_create("s21_sscanf");
-  TCase *tc_sscanf = tcase_create("sscanf");
+Suite* s21_sscanf_suite(void) {
+  Suite* suite = suite_create("s21_sscanf");
+  TCase* tc_sscanf = tcase_create("sscanf");
   tcase_add_test(tc_sscanf, test_sscanf_int);
   tcase_add_test(tc_sscanf, test_sscanf_string);
   tcase_add_test(tc_sscanf, test_sscanf_mixed);
