@@ -68,10 +68,12 @@ static const char *parse_width(const char *p, spec_t *s, va_list *ap) {
             p++;
         }
     }
-    if (s->width_star) { s->width = va_arg(*ap, int); }
-    if (s->width < 0) {
-        s->minus = 1;
-        s->width = -s->width;
+    if (s->width_star) {
+        s->width = va_arg(*ap, int);
+        if (s->width < 0) {
+            s->minus = 1;
+            s->width = -s->width;
+        }
     }
     return p;
 }
@@ -242,7 +244,7 @@ static void out_char_field(out_t *o, char c, const spec_t *s) {
     if (s->minus)  { out_repeat(o, ' ', pad); }
 }
 
-#define FP_MAX_DIGITS 32
+#define FP_MAX_DIGITS 16
 
 typedef struct {
     char digits[FP_MAX_DIGITS];
@@ -271,35 +273,45 @@ static void fp_break(double x, fp_t *f) {
         while (ax < 1.0)   { ax *= 10.0; e--; }
     }
 
-    int i = 0;
-    while (i < FP_MAX_DIGITS) {
-        int d = (int)ax;
-        if (d < 0) { d = 0; }
-        if (d > 9) { d = 9; }
-        f->digits[i] = (char)d;
-        i++;
-        ax = (ax - (double)d) * 10.0;
-        if (ax < 1e-15) { i = FP_MAX_DIGITS; }
+    long long scaled = 0;
+    if (ax > 0.0) {
+        scaled = (long long)(ax * 1e15 + 0.5);
     }
-    f->ndigits = i;
+
+    f->ndigits = FP_MAX_DIGITS;
+    for (int i = FP_MAX_DIGITS - 1; i >= 0; i--) {
+        f->digits[i] = (char)(scaled % 10);
+        scaled /= 10;
+    }
     f->exp10 = e + 1;
 }
 
-static void fp_round_exact(double x, fp_t *f, int prec) {
-    int was_negative = f->negative;
+static void fp_round_digits(fp_t *f, int prec) {
+    if (prec < 0) { prec = 6; }
+    int keep = prec + 1;
+    if (f->ndigits <= keep) { return; }
 
-    double ax = was_negative ? -x : x;
-    if (ax < 0.0) { ax = -ax; }
+    int next = f->digits[keep];
+    f->ndigits = keep;
 
-    double p = 1.0;
-    int k = 0;
-    while (k < prec) { p *= 10.0; k++; }
-
-    double scaled = ax * p + 1e-9;
-    double rounded = (double)(long long)(scaled + 0.5);
-    fp_break(rounded / p, f);
-
-    f->negative = was_negative;
+    if (next >= 5) {
+        int i = f->ndigits - 1;
+        while (i >= 0) {
+            if (f->digits[i] < 9) {
+                f->digits[i]++;
+                break;
+            }
+            f->digits[i] = 0;
+            i--;
+        }
+        if (i < 0) {
+            for (int j = f->ndigits - 1; j > 0; j--) {
+                f->digits[j] = f->digits[j - 1];
+            }
+            f->digits[0] = 1;
+            f->exp10++;
+        }
+    }
 }
 
 static void fp_emit_plain(out_t *o, const fp_t *f, int prec,
@@ -433,10 +445,11 @@ static void out_float(out_t *o, double x, const spec_t *s,
     int prec = s->prec;
     if (conv == 'f' || conv == 'F') {
         if (prec < 0) { prec = 6; }
-        fp_round_exact(x, &f, prec);
+        fp_round_digits(&f, prec);
         fp_emit_plain(o, &f, prec, s);
     } else if (conv == 'e' || conv == 'E') {
         if (prec < 0) { prec = 6; }
+        fp_round_digits(&f, prec);
         fp_emit_sci(o, &f, prec, s, upper);
     } else {
         int use_sci = choose_g_style(&f, prec);
@@ -445,10 +458,12 @@ static void out_float(out_t *o, double x, const spec_t *s,
         if (use_sci) {
             int p = prec - 1;
             if (p < 0) { p = 0; }
+            fp_round_digits(&f, p);
             fp_emit_sci(o, &f, p, s, upper);
         } else {
             int p = prec - f.exp10;
             if (p < 0) { p = 0; }
+            fp_round_digits(&f, p);
             fp_emit_plain(o, &f, p, s);
         }
     }
