@@ -1,10 +1,9 @@
-#include "s21_string.h"
-
 #include <check.h>
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "s21_string.h"
 /* ==================== int: базовые ==================== */
 
 START_TEST(test_sprintf_int_basic) {
@@ -911,7 +910,7 @@ END_TEST
 Suite *s21_sprintf_suite(void) {
   Suite *suite = suite_create("s21_sprintf");
 
-  TCase *tc_int = tcase_create("int");
+  TCase* tc_int = tcase_create("int");
   tcase_add_test(tc_int, test_sprintf_int_basic);
   tcase_add_test(tc_int, test_sprintf_int_negative);
   tcase_add_test(tc_int, test_sprintf_int_zero);
@@ -923,7 +922,7 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_int, test_sprintf_i_positive);
   suite_add_tcase(suite, tc_int);
 
-  TCase *tc_flags = tcase_create("flags");
+  TCase* tc_flags = tcase_create("flags");
   tcase_add_test(tc_flags, test_sprintf_flag_plus);
   tcase_add_test(tc_flags, test_sprintf_flag_plus_zero);
   tcase_add_test(tc_flags, test_sprintf_flag_space);
@@ -934,7 +933,7 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_flags, test_sprintf_flag_zero_negative);
   suite_add_tcase(suite, tc_flags);
 
-  TCase *tc_width = tcase_create("width");
+  TCase* tc_width = tcase_create("width");
   tcase_add_test(tc_width, test_sprintf_width_basic);
   tcase_add_test(tc_width, test_sprintf_width_zero);
   tcase_add_test(tc_width, test_sprintf_width_one);
@@ -948,7 +947,7 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_width, test_sprintf_width_hash_hex);
   suite_add_tcase(suite, tc_width);
 
-  TCase *tc_prec = tcase_create("precision");
+  TCase* tc_prec = tcase_create("precision");
   tcase_add_test(tc_prec, test_sprintf_prec_basic);
   tcase_add_test(tc_prec, test_sprintf_prec_zero_value);
   tcase_add_test(tc_prec, test_sprintf_prec_zero_nonzero);
@@ -959,7 +958,7 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_prec, test_sprintf_prec_star_negative);
   suite_add_tcase(suite, tc_prec);
 
-  TCase *tc_radix = tcase_create("radix");
+  TCase* tc_radix = tcase_create("radix");
   tcase_add_test(tc_radix, test_sprintf_unsigned);
   tcase_add_test(tc_radix, test_sprintf_unsigned_zero);
   tcase_add_test(tc_radix, test_sprintf_unsigned_max);
@@ -974,7 +973,7 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_radix, test_sprintf_octal_zero_hash);
   suite_add_tcase(suite, tc_radix);
 
-  TCase *tc_length = tcase_create("length");
+  TCase* tc_length = tcase_create("length");
   tcase_add_test(tc_length, test_sprintf_long);
   tcase_add_test(tc_length, test_sprintf_long_negative);
   tcase_add_test(tc_length, test_sprintf_long_max);
@@ -987,7 +986,7 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_length, test_sprintf_unsigned_long_max);
   suite_add_tcase(suite, tc_length);
 
-  TCase *tc_str = tcase_create("string");
+  TCase* tc_str = tcase_create("string");
   tcase_add_test(tc_str, test_sprintf_string);
   tcase_add_test(tc_str, test_sprintf_string_width);
   tcase_add_test(tc_str, test_sprintf_string_left);
@@ -1001,7 +1000,7 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_str, test_sprintf_string_width_smaller);
   suite_add_tcase(suite, tc_str);
 
-  TCase *tc_char = tcase_create("char");
+  TCase* tc_char = tcase_create("char");
   tcase_add_test(tc_char, test_sprintf_char);
   tcase_add_test(tc_char, test_sprintf_char_width);
   tcase_add_test(tc_char, test_sprintf_char_left);
@@ -1009,13 +1008,13 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_char, test_sprintf_char_space);
   suite_add_tcase(suite, tc_char);
 
-  TCase *tc_percent = tcase_create("percent");
+  TCase* tc_percent = tcase_create("percent");
   tcase_add_test(tc_percent, test_sprintf_percent);
   tcase_add_test(tc_percent, test_sprintf_percent_only);
   tcase_add_test(tc_percent, test_sprintf_percent_multiple);
   suite_add_tcase(suite, tc_percent);
 
-  TCase *tc_mixed = tcase_create("mixed");
+  TCase* tc_mixed = tcase_create("mixed");
   tcase_add_test(tc_mixed, test_sprintf_mixed);
   tcase_add_test(tc_mixed, test_sprintf_complex_format);
   tcase_add_test(tc_mixed, test_sprintf_many_specs);

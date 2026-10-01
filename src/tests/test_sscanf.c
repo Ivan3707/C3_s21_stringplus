@@ -277,9 +277,9 @@ END_TEST
 
 /* ==================== Suite ==================== */
 
-Suite *s21_sscanf_suite(void) {
-  Suite *suite = suite_create("s21_sscanf");
-  TCase *tc_sscanf = tcase_create("sscanf");
+Suite* s21_sscanf_suite(void) {
+  Suite* suite = suite_create("s21_sscanf");
+  TCase* tc_sscanf = tcase_create("sscanf");
 
   tcase_add_test(tc_sscanf, test_sscanf_int);
   tcase_add_test(tc_sscanf, test_sscanf_string);
