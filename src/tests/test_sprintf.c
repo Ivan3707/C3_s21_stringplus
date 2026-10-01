@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-/* ==================== целые: базовые ==================== */
-
 START_TEST(test_sprintf_int_basic) {
   char s21_buf[128];
   char std_buf[128];
@@ -67,8 +65,6 @@ START_TEST(test_sprintf_i_specifier) {
 }
 END_TEST
 
-/* ==================== целые: флаги ==================== */
-
 START_TEST(test_sprintf_flag_plus) {
   char s21_buf[128];
   char std_buf[128];
@@ -119,8 +115,6 @@ START_TEST(test_sprintf_flag_zero_negative) {
 }
 END_TEST
 
-/* ==================== целые: ширина ==================== */
-
 START_TEST(test_sprintf_width_basic) {
   char s21_buf[128];
   char std_buf[128];
@@ -151,7 +145,15 @@ START_TEST(test_sprintf_width_star_negative) {
 }
 END_TEST
 
-/* ==================== целые: точность ==================== */
+START_TEST(test_sprintf_width_with_prec) {
+  char s21_buf[128];
+  char std_buf[128];
+
+  s21_sprintf(s21_buf, "[%5.2d]", 7);
+  sprintf(std_buf, "[%5.2d]", 7);
+  ck_assert_str_eq(s21_buf, std_buf);
+}
+END_TEST
 
 START_TEST(test_sprintf_prec_basic) {
   char s21_buf[128];
@@ -173,6 +175,16 @@ START_TEST(test_sprintf_prec_zero_value) {
 }
 END_TEST
 
+START_TEST(test_sprintf_prec_zero_nonzero) {
+  char s21_buf[128];
+  char std_buf[128];
+
+  s21_sprintf(s21_buf, "%.0d", 42);
+  sprintf(std_buf, "%.0d", 42);
+  ck_assert_str_eq(s21_buf, std_buf);
+}
+END_TEST
+
 START_TEST(test_sprintf_prec_star) {
   char s21_buf[128];
   char std_buf[128];
@@ -182,8 +194,6 @@ START_TEST(test_sprintf_prec_star) {
   ck_assert_str_eq(s21_buf, std_buf);
 }
 END_TEST
-
-/* ==================== беззнаковые / hex / octal ==================== */
 
 START_TEST(test_sprintf_unsigned) {
   char s21_buf[128];
@@ -215,6 +225,16 @@ START_TEST(test_sprintf_hex_hash) {
 }
 END_TEST
 
+START_TEST(test_sprintf_hex_hash_zero) {
+  char s21_buf[128];
+  char std_buf[128];
+
+  s21_sprintf(s21_buf, "%#x", 0u);
+  sprintf(std_buf, "%#x", 0u);
+  ck_assert_str_eq(s21_buf, std_buf);
+}
+END_TEST
+
 START_TEST(test_sprintf_octal) {
   char s21_buf[128];
   char std_buf[128];
@@ -225,7 +245,15 @@ START_TEST(test_sprintf_octal) {
 }
 END_TEST
 
-/* ==================== длина ==================== */
+START_TEST(test_sprintf_octal_zero_hash) {
+  char s21_buf[128];
+  char std_buf[128];
+
+  s21_sprintf(s21_buf, "%#o", 0u);
+  sprintf(std_buf, "%#o", 0u);
+  ck_assert_str_eq(s21_buf, std_buf);
+}
+END_TEST
 
 START_TEST(test_sprintf_long) {
   char s21_buf[128];
@@ -266,8 +294,6 @@ START_TEST(test_sprintf_unsigned_long) {
   ck_assert_str_eq(s21_buf, std_buf);
 }
 END_TEST
-
-/* ==================== строки ==================== */
 
 START_TEST(test_sprintf_string) {
   char s21_buf[128];
@@ -319,8 +345,6 @@ START_TEST(test_sprintf_string_empty) {
 }
 END_TEST
 
-/* ==================== символ ==================== */
-
 START_TEST(test_sprintf_char) {
   char s21_buf[128];
   char std_buf[128];
@@ -341,8 +365,6 @@ START_TEST(test_sprintf_char_width) {
 }
 END_TEST
 
-/* ==================== процент ==================== */
-
 START_TEST(test_sprintf_percent) {
   char s21_buf[128];
   char std_buf[128];
@@ -352,8 +374,6 @@ START_TEST(test_sprintf_percent) {
   ck_assert_str_eq(s21_buf, std_buf);
 }
 END_TEST
-
-/* ==================== смешанные ==================== */
 
 START_TEST(test_sprintf_mixed) {
   char s21_buf[256];
@@ -375,8 +395,6 @@ START_TEST(test_sprintf_complex_format) {
 }
 END_TEST
 
-/* ==================== возвращаемое значение ==================== */
-
 START_TEST(test_sprintf_return_value) {
   char s21_buf[128];
   char std_buf[128];
@@ -388,8 +406,6 @@ START_TEST(test_sprintf_return_value) {
   ck_assert_str_eq(s21_buf, std_buf);
 }
 END_TEST
-
-/* ==================== float ==================== */
 
 START_TEST(test_sprintf_float_basic) {
   char s21_buf[128];
@@ -481,10 +497,10 @@ START_TEST(test_sprintf_float_plus) {
 }
 END_TEST
 
-/* ==================== Дополнительные для покрытия ==================== */
-
 START_TEST(test_sprintf_e_default_prec) {
-  char s21_buf[128], std_buf[128];
+  char s21_buf[128];
+  char std_buf[128];
+
   s21_sprintf(s21_buf, "%e", 1.5);
   sprintf(std_buf, "%e", 1.5);
   ck_assert_str_eq(s21_buf, std_buf);
@@ -494,28 +510,34 @@ END_TEST
 START_TEST(test_sprintf_n) {
   char s21_buf[128];
   int s21_pos = -1;
+
   s21_sprintf(s21_buf, "hello%n world", &s21_pos);
   ck_assert_int_eq(s21_pos, 5);
 }
 END_TEST
 
 START_TEST(test_sprintf_round_carry) {
-  char s21_buf[128], std_buf[128];
+  char s21_buf[128];
+  char std_buf[128];
+
   s21_sprintf(s21_buf, "%.2f", 9.999);
   sprintf(std_buf, "%.2f", 9.999);
   ck_assert_str_eq(s21_buf, std_buf);
 }
 END_TEST
 
-START_TEST(test_sprintf_unknown_conv) {
+START_TEST(test_sprintf_unknown_conv_no_crash) {
   char s21_buf[128];
-  s21_sprintf(s21_buf, "%z", 42);
-  ck_assert_str_eq(s21_buf, "%z");
+
+  s21_sprintf(s21_buf, "abc%zdef");
+  ck_assert(strlen(s21_buf) >= 5);
 }
 END_TEST
 
 START_TEST(test_sprintf_hash_float) {
-  char s21_buf[128], std_buf[128];
+  char s21_buf[128];
+  char std_buf[128];
+
   s21_sprintf(s21_buf, "%#.0f", 3.0);
   sprintf(std_buf, "%#.0f", 3.0);
   ck_assert_str_eq(s21_buf, std_buf);
@@ -523,14 +545,24 @@ START_TEST(test_sprintf_hash_float) {
 END_TEST
 
 START_TEST(test_sprintf_zero_pad_float) {
-  char s21_buf[128], std_buf[128];
+  char s21_buf[128];
+  char std_buf[128];
+
   s21_sprintf(s21_buf, "%010.2f", 3.14);
   sprintf(std_buf, "%010.2f", 3.14);
   ck_assert_str_eq(s21_buf, std_buf);
 }
 END_TEST
 
-/* ==================== Suite ==================== */
+START_TEST(test_sprintf_no_args) {
+  char s21_buf[128];
+  char std_buf[128];
+
+  s21_sprintf(s21_buf, "plain text");
+  sprintf(std_buf, "plain text");
+  ck_assert_str_eq(s21_buf, std_buf);
+}
+END_TEST
 
 Suite *s21_sprintf_suite(void) {
   Suite *suite = suite_create("s21_sprintf");
@@ -556,11 +588,13 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_width, test_sprintf_width_basic);
   tcase_add_test(tc_width, test_sprintf_width_star);
   tcase_add_test(tc_width, test_sprintf_width_star_negative);
+  tcase_add_test(tc_width, test_sprintf_width_with_prec);
   suite_add_tcase(suite, tc_width);
 
   TCase *tc_prec = tcase_create("precision");
   tcase_add_test(tc_prec, test_sprintf_prec_basic);
   tcase_add_test(tc_prec, test_sprintf_prec_zero_value);
+  tcase_add_test(tc_prec, test_sprintf_prec_zero_nonzero);
   tcase_add_test(tc_prec, test_sprintf_prec_star);
   suite_add_tcase(suite, tc_prec);
 
@@ -568,7 +602,9 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_radix, test_sprintf_unsigned);
   tcase_add_test(tc_radix, test_sprintf_hex);
   tcase_add_test(tc_radix, test_sprintf_hex_hash);
+  tcase_add_test(tc_radix, test_sprintf_hex_hash_zero);
   tcase_add_test(tc_radix, test_sprintf_octal);
+  tcase_add_test(tc_radix, test_sprintf_octal_zero_hash);
   suite_add_tcase(suite, tc_radix);
 
   TCase *tc_length = tcase_create("length");
@@ -599,6 +635,7 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_mixed, test_sprintf_mixed);
   tcase_add_test(tc_mixed, test_sprintf_complex_format);
   tcase_add_test(tc_mixed, test_sprintf_return_value);
+  tcase_add_test(tc_mixed, test_sprintf_no_args);
   suite_add_tcase(suite, tc_mixed);
 
   TCase *tc_float = tcase_create("float");
@@ -617,7 +654,7 @@ Suite *s21_sprintf_suite(void) {
   tcase_add_test(tc_extra, test_sprintf_e_default_prec);
   tcase_add_test(tc_extra, test_sprintf_n);
   tcase_add_test(tc_extra, test_sprintf_round_carry);
-  tcase_add_test(tc_extra, test_sprintf_unknown_conv);
+  tcase_add_test(tc_extra, test_sprintf_unknown_conv_no_crash);
   tcase_add_test(tc_extra, test_sprintf_hash_float);
   tcase_add_test(tc_extra, test_sprintf_zero_pad_float);
   suite_add_tcase(suite, tc_extra);
