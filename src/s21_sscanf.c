@@ -43,8 +43,8 @@ static int s21_ss_hex_val(char c) {
 }
 
 static int s21_ss_is_valid_digit(char c, int base) {
-  int v = (base == 16) ? s21_ss_hex_val(c)
-                       : (s21_ss_is_digit(c) ? (c - '0') : -1);
+  int v =
+      (base == 16) ? s21_ss_hex_val(c) : (s21_ss_is_digit(c) ? (c - '0') : -1);
   int result = 0;
   if (v >= 0 && v < base) result = 1;
   return result;
@@ -207,8 +207,7 @@ static unsigned long long s21_ss_buf_to_ull(const char* buf, int i, int base) {
 }
 
 static void s21_ss_store_int(s21_sscanf_ctx* ctx, unsigned long long val,
-                             int neg, int is_signed, char len_mod,
-                             char spec) {
+                             int neg, int is_signed, char len_mod, char spec) {
   if (spec == 'p') {
     void** pp = va_arg(*ctx->args, void**);
     *pp = (void*)(uintptr_t)val;
