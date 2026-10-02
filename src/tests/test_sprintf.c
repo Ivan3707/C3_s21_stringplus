@@ -907,8 +907,13 @@ START_TEST(test_sprintf_unknown_conv_no_crash) {
 }
 END_TEST
 
+<<<<<<< HEAD
 Suite* s21_sprintf_suite(void) {
   Suite* suite = suite_create("s21_sprintf");
+=======
+Suite *s21_sprintf_suite(void) {
+  Suite *suite = suite_create("s21_sprintf");
+>>>>>>> 2947239a248f6f6a9a219a550d405dfa1d143b61
 
   TCase* tc_int = tcase_create("int");
   tcase_add_test(tc_int, test_sprintf_int_basic);
@@ -1021,12 +1026,20 @@ Suite* s21_sprintf_suite(void) {
   tcase_add_test(tc_mixed, test_sprintf_no_args);
   suite_add_tcase(suite, tc_mixed);
 
+<<<<<<< HEAD
   TCase* tc_ret = tcase_create("return");
+=======
+  TCase *tc_ret = tcase_create("return");
+>>>>>>> 2947239a248f6f6a9a219a550d405dfa1d143b61
   tcase_add_test(tc_ret, test_sprintf_return_value);
   tcase_add_test(tc_ret, test_sprintf_return_percent);
   suite_add_tcase(suite, tc_ret);
 
+<<<<<<< HEAD
   TCase* tc_float = tcase_create("float");
+=======
+  TCase *tc_float = tcase_create("float");
+>>>>>>> 2947239a248f6f6a9a219a550d405dfa1d143b61
   tcase_add_test(tc_float, test_sprintf_float_basic);
   tcase_add_test(tc_float, test_sprintf_float_prec);
   tcase_add_test(tc_float, test_sprintf_float_prec_zero);
@@ -1043,7 +1056,11 @@ Suite* s21_sprintf_suite(void) {
   tcase_add_test(tc_float, test_sprintf_float_round_carry);
   suite_add_tcase(suite, tc_float);
 
+<<<<<<< HEAD
   TCase* tc_sci = tcase_create("sci");
+=======
+  TCase *tc_sci = tcase_create("sci");
+>>>>>>> 2947239a248f6f6a9a219a550d405dfa1d143b61
   tcase_add_test(tc_sci, test_sprintf_sci);
   tcase_add_test(tc_sci, test_sprintf_sci_upper);
   tcase_add_test(tc_sci, test_sprintf_e_default_prec);
@@ -1054,13 +1071,21 @@ Suite* s21_sprintf_suite(void) {
   tcase_add_test(tc_sci, test_sprintf_e_left);
   suite_add_tcase(suite, tc_sci);
 
+<<<<<<< HEAD
   TCase* tc_n = tcase_create("n");
+=======
+  TCase *tc_n = tcase_create("n");
+>>>>>>> 2947239a248f6f6a9a219a550d405dfa1d143b61
   tcase_add_test(tc_n, test_sprintf_n);
   tcase_add_test(tc_n, test_sprintf_n_start);
   tcase_add_test(tc_n, test_sprintf_n_multiple);
   suite_add_tcase(suite, tc_n);
 
+<<<<<<< HEAD
   TCase* tc_extra = tcase_create("extra");
+=======
+  TCase *tc_extra = tcase_create("extra");
+>>>>>>> 2947239a248f6f6a9a219a550d405dfa1d143b61
   tcase_add_test(tc_extra, test_sprintf_unknown_conv_no_crash);
   suite_add_tcase(suite, tc_extra);
 
