@@ -737,12 +737,9 @@ static void finish_buf(out_t* o) {
 }
 
 int s21_vsnprintf(char* buf, s21_size cap, const char* fmt, va_list ap) {
-<<<<<<< HEAD
   va_list local_ap;
   va_copy(local_ap, ap);
 
-=======
->>>>>>> 2947239a248f6f6a9a219a550d405dfa1d143b61
   out_t o;
   o.buf = buf;
   o.pos = 0;
@@ -750,15 +747,10 @@ int s21_vsnprintf(char* buf, s21_size cap, const char* fmt, va_list ap) {
 
   const char* p = fmt;
   while (*p != '\0') {
-<<<<<<< HEAD
     format_step(&o, &p, &local_ap);
   }
 
   va_end(local_ap);
-=======
-    format_step(&o, &p, &ap);
-  }
->>>>>>> 2947239a248f6f6a9a219a550d405dfa1d143b61
   finish_buf(&o);
   return (int)o.pos;
 }
@@ -777,8 +769,4 @@ int s21_snprintf(char* buf, s21_size cap, const char* fmt, ...) {
   int n = s21_vsnprintf(buf, cap, fmt, ap);
   va_end(ap);
   return n;
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 2947239a248f6f6a9a219a550d405dfa1d143b61
